@@ -17,7 +17,7 @@ struct HomeView: View {
                     PokemonViewRow(model: pokemon)
                         .onAppear {
                             viewModel.loadNextPageWithSearchIfNeeded(currentItem: pokemon)
-                        }jcdwcnjowncno
+                        }
                 }
                 
                 if viewModel.isLoading {
