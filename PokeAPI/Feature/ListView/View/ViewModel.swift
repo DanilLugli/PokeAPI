@@ -98,17 +98,6 @@ final class ViewModel: ObservableObject {
             print(error)
         }
     }
-
-    // MARK: - Decide which pagination to use
-    func loadNextPageWithSearchIfNeeded(currentItem: DataModel) {
-        if searchText.isEmpty {
-            loadNextPageIfNeeded(currentItem: currentItem)
-        } else {
-            if shouldLoadMoreFiltered(currentItem: currentItem) {
-                Task { await fetchMoreFilteredPokemon() }
-            }
-        }
-    }
     
     // MARK: - Original pagination (base)
     @MainActor
@@ -130,5 +119,6 @@ final class ViewModel: ObservableObject {
             }
         }
     }
+    
 }
 

@@ -81,43 +81,44 @@ final class PokemonListViewModel: ObservableObject {
 		}
 	}
     
-    private func shouldLoadMoreFiltered(currentItem: DataModel) -> Bool {
-        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
-        return filteredPokemons.last?.id == currentItem.id
+    func loadNextPageWithSearchIfNeeded(currentItem: DataModel) {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmed.isEmpty {
+            loadNextPageIfNeeded(currentItem: currentItem)
+        } else {
+            if shouldLoadMoreFiltered(currentItem: currentItem) {
+                Task { await loadMoreFilteredPokemon() }
+            }
+        }
     }
     
     @MainActor
-    private func loadMoreFilteredPokemon() async {
-        guard let offset = nextOffset else { return }
-        isLoading = true
-        errorMessage = nil
+    func loadMoreFilteredPokemon() async {
+        do {
+            let nextOffset = pokemons.count
+            let page = try await api.fetchPokemonPage(offset: nextOffset, limit: 20)
 
-        Task {
-            do {
-                let page = try await api.fetchPokemonPage(offset: offset, limit: pageSize)
+            let q = searchText.lowercased()
 
-                let q = searchText.lowercased()
-
-                let filtered = page.pokemons
-                    .map { DataModel(from: $0) }
-                    .filter { pokemon in
-                        pokemon.name.lowercased().contains(q) ||
-                        pokemon.types.contains { $0.lowercased().contains(q) }
-                    }
-
-                await MainActor.run {
-                    pokemons.append(contentsOf: filtered)
-                    nextOffset = page.nextOffset
-                    totalCount = page.totalCount
-                    isLoading = false
+            let newMatches = page.pokemons
+                .map { DataModel(from: $0) }
+                .filter { pokemon in
+                    let nameMatches = pokemon.name.lowercased().contains(q)
+                    let typeMatches = pokemon.types.contains { $0.lowercased().contains(q) }
+                    return nameMatches || typeMatches
                 }
-            } catch {
-                await MainActor.run {
-                    errorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-                    isLoading = false
-                }
-            }
+
+            self.pokemons.append(contentsOf: newMatches)
+
+        } catch {
+            print(error)
         }
+    }
+    
+    private func shouldLoadMoreFiltered(currentItem: DataModel) -> Bool {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+        return filteredPokemons.last?.id == currentItem.id
     }
     
     func clearError() {
