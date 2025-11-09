@@ -56,3 +56,4 @@ struct PokemonDetailResponse: Decodable {
     let types: [TypeEntry]
     let abilities: [AbilityEntry]
 }
+

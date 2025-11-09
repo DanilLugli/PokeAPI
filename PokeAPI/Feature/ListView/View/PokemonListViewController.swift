@@ -13,20 +13,45 @@ class PokemonListViewController: UIViewController {
     private let tableView = UITableView()
     private var viewModel = PokemonListViewModel(api: APIManager())
     private var cancellables = Set<AnyCancellable>()
-
+    private var canTriggerPagination = true
+    
     private let searchController = UISearchController(searchResultsController: nil)
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        title = "Pokémon"
+        navigationItem.largeTitleDisplayMode = .never
+        navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.searchController = searchController
 
+        setupNavigationTitle()
         setupTableView()
         bindViewModel()
         setupSearch()
 
         viewModel.loadInitial()
+    }
+    
+    private func setupNavigationTitle() {
+        navigationItem.titleView = nil
+        navigationItem.searchController = searchController
+        
+        let headerView = UIView()
+        let imageView = UIImageView(image: UIImage(named: "PokemonBox"))
+        imageView.contentMode = .scaleAspectFit
+
+        headerView.addSubview(imageView)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            imageView.centerXAnchor.constraint(equalTo: headerView.centerXAnchor),
+            imageView.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 12),
+            imageView.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -12),
+            imageView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+
+        tableView.tableHeaderView = headerView
+        headerView.frame.size.height = 60
     }
 
     private func setupTableView() {
@@ -97,16 +122,28 @@ extension PokemonListViewController: UITableViewDelegate, UITableViewDataSource 
         cell.configure(with: viewModel.filteredPokemons[indexPath.row])
         return cell
     }
-
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let frameHeight = scrollView.frame.height
+        
+        print("TEST offsetY: \(offsetY)")
+        print("TEST contentHeight: \(contentHeight)")
+        print("TEST frameHeight: \(frameHeight)")
 
-        if offsetY > contentHeight - frameHeight * 2 {
-            if let last = viewModel.filteredPokemons.last {
-                viewModel.loadNextPageWithSearchIfNeeded(currentItem: last)
-            }
+        guard offsetY >= contentHeight - frameHeight else { return }
+        guard canTriggerPagination else { return }
+        guard !viewModel.isLoading else { return }
+        canTriggerPagination = false
+
+        if let last = viewModel.filteredPokemons.last {
+            viewModel.loadNextPageCheckSearchActive(currentItem: last)
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            print("TEST: Call ViewController")
+            self.canTriggerPagination = true
         }
     }
 }

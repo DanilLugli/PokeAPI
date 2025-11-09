@@ -103,6 +103,7 @@ class APIManager: APIManagerProtocol {
             return models
         }
     }
+    
     private static func extractOffset(from next: String?) -> Int? {
         guard
             let next,
