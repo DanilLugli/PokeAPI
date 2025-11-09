@@ -5,7 +5,6 @@
 //  Created by Danil Lugli on 11/7/25.
 //
 
-
 struct DataModel: Identifiable {
     let id: Int
     let name: String

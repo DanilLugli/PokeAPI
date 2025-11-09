@@ -5,8 +5,6 @@
 //  Created by Danil Lugli on 11/9/25.
 //
 
-
-
 import UIKit
 
 class PokemonCell: UITableViewCell {

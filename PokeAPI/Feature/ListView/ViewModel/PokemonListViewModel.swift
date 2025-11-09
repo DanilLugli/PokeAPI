@@ -30,9 +30,9 @@ final class PokemonListViewModel: ObservableObject {
 	}
     
 	private let api: APIManagerProtocol
-	private let pageSize: Int
-	private var nextOffset: Int?
-	private var totalCount: Int = 0
+    let pageSize: Int
+    var nextOffset: Int?
+    var totalCount: Int = 0
 
 	init(api: APIManagerProtocol? = nil, pageSize: Int = 20) {
 		self.api = api ?? APIManager()

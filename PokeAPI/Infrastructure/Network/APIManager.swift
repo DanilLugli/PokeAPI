@@ -72,7 +72,7 @@ class APIManager: APIManagerProtocol {
                     let speciesURL = self.baseURL.appendingPathComponent("pokemon-species/\(detail.id)")
                     let species: PokemonSpeciesResponse = try await self.fetch(speciesURL)
 
-                    let description = cleanupDescription(from: species.flavorTextEntries)
+                    let description = await cleanupDescription(from: species.flavorTextEntries)
 
                     let types = detail.types
                         .sorted { $0.slot < $1.slot }
