@@ -72,12 +72,7 @@ class APIManager: APIManagerProtocol {
                     let speciesURL = self.baseURL.appendingPathComponent("pokemon-species/\(detail.id)")
                     let species: PokemonSpeciesResponse = try await self.fetch(speciesURL)
 
-                    let description = species.flavorTextEntries
-                        .first(where: { $0.language.name == "en" })?
-                        .flavorText
-                        .replacingOccurrences(of: "\n", with: " ")
-                        .replacingOccurrences(of: "\u{000C}", with: " ")
-                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    let description = cleanupDescription(from: species.flavorTextEntries)
 
                     let types = detail.types
                         .sorted { $0.slot < $1.slot }
@@ -102,6 +97,41 @@ class APIManager: APIManagerProtocol {
 
             return models
         }
+    }
+    
+    private func cleanupDescription(from entries: [PokemonSpeciesResponse.FlavorTextEntry]) -> String {
+        let englishEntries = entries.filter { $0.language.name == "en" }
+
+        func clean(_ text: String) -> String {
+            text
+                .replacingOccurrences(of: "\n", with: " ")
+                .replacingOccurrences(of: "\u{000C}", with: " ")
+                .replacingOccurrences(of: "  ", with: " ")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        
+        let priorityOrder = [
+            "sword", "shield",
+            "lets-go-pikachu", "lets-go-eevee",
+            "ultra-sun", "ultra-moon",
+            "sun", "moon",
+            "omega-ruby", "alpha-sapphire",
+            "x", "y"
+        ]
+
+        if let preferred = englishEntries
+            .sorted(by: {
+                let a = priorityOrder.firstIndex(of: $0.version.name) ?? Int.max
+                let b = priorityOrder.firstIndex(of: $1.version.name) ?? Int.max
+                return a < b
+            })
+            .first {
+
+            return clean(preferred.flavorText)
+        }
+
+        return englishEntries.first.map { clean($0.flavorText) } ?? "No description available."
     }
     
     private static func extractOffset(from next: String?) -> Int? {

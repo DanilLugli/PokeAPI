@@ -7,19 +7,32 @@
 
 
 struct PokemonSpeciesResponse: Decodable {
-    let flavorTextEntries: [FlavorTextEntry]
-
-    enum CodingKeys: String, CodingKey {
-        case flavorTextEntries = "flavor_text_entries"
-    }
 
     struct FlavorTextEntry: Decodable {
+        struct Language: Decodable {
+            let name: String
+            let url: String
+        }
+
+        struct Version: Decodable {
+            let name: String
+            let url: String
+        }
+
         let flavorText: String
-        let language: NamedAPIResource
+        let language: Language
+        let version: Version
 
         enum CodingKeys: String, CodingKey {
             case flavorText = "flavor_text"
             case language
+            case version
         }
+    }
+
+    let flavorTextEntries: [FlavorTextEntry]
+
+    enum CodingKeys: String, CodingKey {
+        case flavorTextEntries = "flavor_text_entries"
     }
 }

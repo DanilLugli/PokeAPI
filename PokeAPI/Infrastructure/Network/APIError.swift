@@ -42,9 +42,6 @@ enum APIError: Error, LocalizedError {
         case .noData:
             return "The server returned no data."
             
-        case .decodingFailed(let underlying):
-            return "Failed to decode data: \(underlying.localizedDescription)"
-            
         case .offline:
             return "You appear to be offline. Please check your connection."
             

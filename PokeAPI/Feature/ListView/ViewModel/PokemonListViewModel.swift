@@ -102,7 +102,7 @@ final class PokemonListViewModel: ObservableObject {
         
         Task {
             if searchText.isEmpty {
-                await loadNextPageIfNeeded(currentItem: currentItem)
+                loadNextPageIfNeeded(currentItem: currentItem)
             } else {
                 await loadMoreFilteredPokemon()
             }
@@ -110,48 +110,6 @@ final class PokemonListViewModel: ObservableObject {
             isPaginating = false
         }
     }
-
-//    func loadMoreFilteredPokemon() async {
-//        guard let offset = nextOffset else { return }
-//        guard !isLoading else { return }
-//
-//        if filteredRetryCount >= 5 { return }
-//
-//        isLoading = true
-//        errorMessage = nil
-//
-//        do {
-//            let page = try await api.fetchPokemonPage(offset: offset, limit: pageSize)
-//
-//            let query = searchText.lowercased()
-//
-//            let matches = page.pokemons
-//                .map { DataModel(from: $0) }
-//                .filter { pokemon in
-//                    pokemon.name.lowercased().contains(query) ||
-//                    pokemon.types.contains { $0.lowercased().contains(query) }
-//                }
-//
-//            if matches.isEmpty {
-//                filteredRetryCount += 1
-//                nextOffset = page.nextOffset
-//                isLoading = false
-//
-//                await loadMoreFilteredPokemon()
-//                return
-//            }
-//
-//            filteredRetryCount = 0
-//            pokemons.append(contentsOf: matches)
-//            nextOffset = page.nextOffset
-//            totalCount = page.totalCount
-//            isLoading = false
-//
-//        } catch {
-//            errorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-//            isLoading = false
-//        }
-//    }
     
     func loadMoreFilteredPokemon() async {
         guard let offset = nextOffset else { return }
