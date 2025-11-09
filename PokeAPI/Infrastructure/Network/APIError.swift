@@ -4,28 +4,25 @@
 //
 //  Created by Danil Lugli on 11/7/25.
 //
-
+//
+//  APIError.swift
+//  PokeAPI
+//
+//  Created by Danil Lugli on 11/7/25.
+//
 
 import Foundation
 
 enum APIError: Error, LocalizedError {
     
-    // MARK: - Networking
     case invalidURL
     case requestFailed(underlying: Error)
     case invalidResponse(statusCode: Int)
     case noData
-    
-    // MARK: - Decoding
     case decodingFailed(underlying: Error)
-    
-    // MARK: - Connectivity
     case offline
-    
-    // MARK: - Unknown
     case unknown
     
-    // MARK: - User friendly messages
     var errorDescription: String? {
         switch self {
             

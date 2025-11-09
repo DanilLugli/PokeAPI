@@ -63,10 +63,12 @@ class APIManager: APIManagerProtocol {
     private func fetchDetails(for results: [PokemonListResponse.Result]) async throws -> [NWDataModel] {
         try await withThrowingTaskGroup(of: NWDataModel.self) { group in
             for result in results {
-                group.addTask {
+                group.addTask { [weak self] in
+                    guard let self else { throw APIError.invalidURL }
+
                     let detailURL = result.url
                     let detail: PokemonDetailResponse = try await self.fetch(detailURL)
-                    
+
                     let speciesURL = self.baseURL.appendingPathComponent("pokemon-species/\(detail.id)")
                     let species: PokemonSpeciesResponse = try await self.fetch(speciesURL)
 
@@ -74,6 +76,8 @@ class APIManager: APIManagerProtocol {
                         .first(where: { $0.language.name == "en" })?
                         .flavorText
                         .replacingOccurrences(of: "\n", with: " ")
+                        .replacingOccurrences(of: "\u{000C}", with: " ")
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
 
                     let types = detail.types
                         .sorted { $0.slot < $1.slot }
@@ -99,7 +103,6 @@ class APIManager: APIManagerProtocol {
             return models
         }
     }
-
     private static func extractOffset(from next: String?) -> Int? {
         guard
             let next,

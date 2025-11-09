@@ -5,7 +5,6 @@
 //  Created by Danil Lugli on 11/7/25.
 //
 
-
 import SwiftUI
 internal import Combine
 
@@ -68,8 +67,6 @@ final class ViewModel: ObservableObject {
 			print(error)
 		}
 	}
-    
-    // MARK: - Pagination with Search
 
     func shouldLoadMoreFiltered(currentItem: DataModel) -> Bool {
         guard !searchText.isEmpty else { return false }
@@ -99,7 +96,6 @@ final class ViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Original pagination (base)
     @MainActor
     func loadNextPageIfNeeded(currentItem: DataModel) {
         guard let last = data.last else { return }

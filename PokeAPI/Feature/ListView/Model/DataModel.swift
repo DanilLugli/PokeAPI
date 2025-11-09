@@ -11,7 +11,7 @@ struct DataModel: Identifiable {
     let name: String
     let types: [String]
     let imageURL: String
-    let description: String
+    let abilities: String
     
     init(
         id: Int,
@@ -24,7 +24,7 @@ struct DataModel: Identifiable {
         self.name = name
         self.types = types
         self.imageURL = imageURL
-        self.description = description
+        self.abilities = description
     }
     
     init(from network: NWDataModel) {
@@ -32,6 +32,6 @@ struct DataModel: Identifiable {
         self.name = network.name
         self.types = network.types.map { $0.name }
         self.imageURL = network.imageURL ?? ""
-        self.description = network.description ?? ""
+        self.abilities = network.description ?? ""
     }
 }

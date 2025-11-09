@@ -1,5 +1,5 @@
 //
-//  TestView.swift
+//  PokemonView.swift
 //  PokeAPI
 //
 //  Created by Danil Lugli on 11/7/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HomeView: View {
+struct PokemonView: View {
     @StateObject private var viewModel = PokemonListViewModel(api: APIManager())
     
     var body: some View {

@@ -1,3 +1,10 @@
+//
+//  PokemonListViewModel.swift
+//  PokeAPI
+//
+//  Created by Danil Lugli on 11/7/25.
+//
+
 import SwiftUI
 internal import Combine
 
@@ -95,9 +102,14 @@ final class PokemonListViewModel: ObservableObject {
     
     @MainActor
     func loadMoreFilteredPokemon() async {
+        guard let offset = nextOffset else { return }
+        guard !isLoading else { return }
+        
+        isLoading = true
+        errorMessage = nil
+        
         do {
-            let nextOffset = pokemons.count
-            let page = try await api.fetchPokemonPage(offset: nextOffset, limit: 20)
+            let page = try await api.fetchPokemonPage(offset: offset, limit: pageSize)
 
             let q = searchText.lowercased()
 
@@ -110,14 +122,20 @@ final class PokemonListViewModel: ObservableObject {
                 }
 
             self.pokemons.append(contentsOf: newMatches)
+            self.nextOffset = page.nextOffset
+            self.totalCount = page.totalCount
+            self.isLoading = false
 
         } catch {
-            print(error)
+            self.errorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.isLoading = false
         }
     }
     
     private func shouldLoadMoreFiltered(currentItem: DataModel) -> Bool {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+        guard nextOffset != nil else { return false }
+        guard !isLoading else { return false }
         return filteredPokemons.last?.id == currentItem.id
     }
     
